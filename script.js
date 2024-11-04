@@ -1,39 +1,39 @@
 const ctx = document.getElementById('myChart');
-fetch('https://raw.githubusercontent.com/SkillWebDemo/ServerSide/refs/heads/master/data/demodata.json')
+fetch('data/csvjson.json')
   .then(response => response.json())
-  .then(data => {
-    let labels = [];
-    let electronics = [];
-    let groceries = [];
-    let clothing = [];
+  .then(_data => {
+    console.log(_data);
+    let labels = ['1','2'];
+    let countries = {};
 
-    for (let month in data) {
-      labels.push(month);
-      electronics.push(data[month]['Electronics']);
-      groceries.push(data[month]['Groceries']);
-      clothing.push(data[month]['Clothing']);
+    for (let entry of _data) {
+      let key = entry.Country+'/'+entry.City;
+      let country = countries[key];
+      if (!country) {
+        countries[key] = [entry.AverageTemperatureFahr];
+      } else {
+        country.push(entry.AverageTemperatureFahr);
+      }
     }
 
-    console.log(groceries);
+    let dataset = [];
+    for (let key in countries) {
+      dataset.push({label: key, data: countries[key]});
+    }
+
+    console.log(dataset);
     new Chart(ctx, {
-      type: 'bar',
+      type: 'line',
       data: {
         labels: labels,
-        datasets: [
-          {
-            label: 'Electronics',
-            data: electronics,
-          },
-          {
-            label: 'Groceries',
-            data: groceries,
-          },
-          {
-            label: 'Clothing',
-            data: clothing,
-          },
-        ]
+        datasets: dataset,
       },
-      options: {}
+      options: {
+        plugins: {
+          legend: {
+            position: 'right',
+          }
+        }
+      }
     });
   });
